@@ -1,0 +1,154 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PablitoJere;
+using PablitoJere.DTOs;
+using PablitoJere.Entities;
+using PablitoJere.Services;
+
+namespace PablitoJere.Controllers.V1
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class PublicationsController : ControllerBase
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly BlobStorageService _blob = new BlobStorageService();
+        public PublicationsController(ApplicationDbContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+
+        // GET: api/Publications
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Publication>>> GetPublications()
+        {
+            List<Publication> publications = await _context.Publications
+                  .Include(publication => publication.PublicationImages).ToListAsync();
+
+            return publications;
+        }
+
+        // GET: api/Publications/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Publication>> GetPublication(int id)
+        {
+          if (_context.Publications == null)
+          {
+              return NotFound();
+          }
+            var publication = await _context.Publications.Include(x => x.PublicationImages).Where(x=> x.Id == id).FirstAsync();
+
+            if (publication == null)
+            {
+                return NotFound();
+            }
+
+            return publication;
+        }
+
+        // PUT: api/Publications/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutPublication(int id, Publication publication)
+        {
+            if (id != publication.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(publication).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PublicationExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok(publication);
+        }
+
+        // POST: api/Publications
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Publication>> PostPublication(PublicationCreateDTO publicationCreateDTO)
+        {
+            Publication publication = new Publication();
+            publication.Title = publicationCreateDTO.Title;
+            publication.Description = publicationCreateDTO.Description;
+            publication.PublicationImages = new List<PublicationImage>();
+
+            string[] imageUrls = await _blob.UploadImagesToBlobStorage(publicationCreateDTO.PublicationImages);
+
+            for(int i = 0; i < publicationCreateDTO.PublicationImages.Count; i++)
+            {
+                PublicationImage image = new PublicationImage();
+                image.ImageUrl = imageUrls[i];
+                publication.PublicationImages.Add(image);
+            }
+
+            _context.Publications.Add(publication);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetPublication", new { id = publication.Id }, publication);
+        }
+
+        // DELETE: api/Publications/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePublication(int id)
+        {
+            if (_context.Publications == null)
+            {
+                return NotFound();
+            }
+            var publication = await _context.Publications.FindAsync(id);
+            if (publication == null)
+            {
+                return NotFound();
+            }
+
+            _context.Publications.Remove(publication);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+        // DELETE: api/Publications/5
+        [HttpDelete("all")]
+        public async Task<IActionResult> DeleteAllPublications()
+        {
+            if (_context.Publications.Any())
+            {
+                _context.Publications.RemoveRange(_context.Publications.ToList());
+            }
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool PublicationExists(int id)
+        {
+            return (_context.Publications?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+    }
+}

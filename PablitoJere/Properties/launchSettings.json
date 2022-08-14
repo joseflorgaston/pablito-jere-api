@@ -1,0 +1,33 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:19429",
+      "sslPort": 44328
+    }
+  },
+  "profiles": {
+    "PablitoJere": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=pablitojere;AccountKey=Qj1NQzNvRLVqYj5mR/dRIzWcXuhD+Do3FSW1/rt+dhzCi8OR9TnhFPsK8FdWRtmHsnWHDq7Pvy78+ASt5hGvmQ==;EndpointSuffix=core.windows.net"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=pablitojere;AccountKey=Qj1NQzNvRLVqYj5mR/dRIzWcXuhD+Do3FSW1/rt+dhzCi8OR9TnhFPsK8FdWRtmHsnWHDq7Pvy78+ASt5hGvmQ==;EndpointSuffix=core.windows.net"
+      }
+    }
+  }
+}
