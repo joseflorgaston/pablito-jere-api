@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using PablitoJere.Entities;
 using PablitoJere.Utilities;
 using System.Drawing;
 
@@ -40,6 +41,32 @@ namespace PablitoJere.Services
                 this.UploadImageToBlob(Guid.NewGuid().ToString(), base64Image)));
 
             return await Task.WhenAll(blobTasks);
+        }
+
+        public async Task<bool> DeleteFileFromContainer(string identifier)
+        {
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+            bool value = await containerClient.DeleteBlobIfExistsAsync(identifier);
+            return value;
+        }
+
+        public async Task<bool[]> DeleteFilesFromContainer(List<string> identifiers)
+        {
+            List<Task<bool>> blobTasks = new List<Task<bool>>();
+            
+            identifiers.ForEach(identifier => blobTasks.Add(DeleteFileFromContainer(identifier)));
+
+            return await Task.WhenAll(blobTasks);
+        }
+
+        internal List<string> GetIdentifiers(List<PublicationImage> publicationImages)
+        {
+            List<string> unformattedIdentifiers = publicationImages.Select(x => x.ImageUrl).ToList();
+            List<string> identifiers = new List<string>();
+            unformattedIdentifiers.ForEach(unformattedIdentifier => identifiers.Add(unformattedIdentifier.Substring(unformattedIdentifier.LastIndexOf('/') + 1)));
+
+            return identifiers;
         }
     }
 }
