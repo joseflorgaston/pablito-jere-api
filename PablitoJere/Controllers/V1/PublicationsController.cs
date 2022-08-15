@@ -59,30 +59,31 @@ namespace PablitoJere.Controllers.V1
         // PUT: api/Publications/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPublication(int id, Publication publication)
+        public async Task<IActionResult> PutPublication(int id, PublicationCreateDTO publication)
         {
-            if (id != publication.Id)
+            var oldPublication = await _context.Publications.Include(x => x.PublicationImages).Where(x => x.Id == id).FirstOrDefaultAsync();
+            if (oldPublication == null)
             {
-                return BadRequest();
+                return NotFound();
+            }
+            oldPublication.Title = publication.Title;
+            oldPublication.Description = publication.Description;
+            List<string> identifiers = _blob.GetIdentifiers(oldPublication.PublicationImages);
+            
+            await _blob.DeleteFilesFromContainer(identifiers);
+            string[] imageUrls = await _blob.UploadImagesToBlobStorage(publication.PublicationImages);
+
+            oldPublication.PublicationImages = new List<PublicationImage>();
+
+            for (int i = 0; i < publication.PublicationImages.Count; i++)
+            {
+                PublicationImage image = new PublicationImage();
+                image.ImageUrl = imageUrls[i];
+                oldPublication.PublicationImages.Add(image);
             }
 
-            _context.Entry(publication).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PublicationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            _context.Entry(oldPublication).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return Ok(publication);
         }
@@ -116,18 +117,16 @@ namespace PablitoJere.Controllers.V1
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePublication(int id)
         {
-            if (_context.Publications == null)
-            {
-                return NotFound();
-            }
-            var publication = await _context.Publications.FindAsync(id);
-            if (publication == null)
+            if (_context.Publications == null || await _context.Publications.FindAsync(id) == null)
             {
                 return NotFound();
             }
 
+            var publication = await _context.Publications.Include(publication => publication.PublicationImages).Where(x=> x.Id == id).FirstOrDefaultAsync();
+            List<string> identifiers = _blob.GetIdentifiers(publication!.PublicationImages);
             _context.Publications.Remove(publication);
-            await _context.SaveChangesAsync();
+            List<Task> tasks = new List<Task>() {_blob.DeleteFilesFromContainer(identifiers), _context.SaveChangesAsync()};
+            await Task.WhenAll(tasks);
 
             return NoContent();
         }
