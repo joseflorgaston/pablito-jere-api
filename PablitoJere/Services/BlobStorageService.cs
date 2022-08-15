@@ -13,7 +13,7 @@ namespace PablitoJere.Services
         BlobServiceClient blobServiceClient;
         public BlobStorageService()
         {
-            connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING")!;
+            connectionString = "DefaultEndpointsProtocol=https;AccountName=pablitojere;AccountKey=Qj1NQzNvRLVqYj5mR/dRIzWcXuhD+Do3FSW1/rt+dhzCi8OR9TnhFPsK8FdWRtmHsnWHDq7Pvy78+ASt5hGvmQ==;EndpointSuffix=core.windows.net";
             blobServiceClient = new BlobServiceClient(connectionString);
             containerName = "publications";
         }
