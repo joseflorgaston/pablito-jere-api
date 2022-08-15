@@ -7,12 +7,12 @@ namespace PablitoJere.Entities
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "This field is required")]
-        [StringLength(maximumLength: 120, ErrorMessage = "Title field maximum Lenght is 120 characters")]
+        [StringLength(maximumLength: 120, ErrorMessage = "Title field maximum Length is 120 characters")]
         [Capitalized]
         public string Title { get; set; }
 
         [Required(ErrorMessage = "This field is required")]
-        [StringLength(maximumLength: 2400, ErrorMessage = "Description field maximum Lenght is 2400 characters")]
+        [StringLength(maximumLength: 1200, ErrorMessage = "Description field maximum Length is 1200 characters")]
         [Capitalized]
         public string Description { get; set; }
 
