@@ -29,7 +29,7 @@ namespace PablitoJere
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("prod")));
 
             services.AddCors(options =>
                 options.AddDefaultPolicy(builder =>
