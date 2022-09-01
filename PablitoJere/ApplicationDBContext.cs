@@ -17,5 +17,7 @@ namespace PablitoJere
 
         public DbSet<Publication> Publications { get; set; }
         public DbSet<PublicationImage> PublicationImages { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+
     }
 }

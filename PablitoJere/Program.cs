@@ -1,5 +1,7 @@
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Identity;
 using PablitoJere;
+using PablitoJere.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,13 +11,12 @@ startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
+var initDatabase = new InitDatabaseService();
+
 var logger = app.Services.GetService(typeof(ILogger<Startup>)) as ILogger<Startup>;
-
-var blob = new BlobStorage();
-
 
 startup.Configure(app, app.Environment, logger);
 
-// blob.ConfigureBlobStorage();
+await initDatabase.InitDatabase(app.Services);
 
 app.Run();

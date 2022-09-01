@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -58,16 +59,20 @@ namespace PablitoJere.Controllers.V1
 
         // PUT: api/Publications/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPublication(int id, PublicationCreateDTO publication)
         {
             var oldPublication = await _context.Publications.Include(x => x.PublicationImages).Where(x => x.Id == id).FirstOrDefaultAsync();
+
             if (oldPublication == null)
             {
                 return NotFound();
             }
+
             oldPublication.Title = publication.Title;
             oldPublication.Description = publication.Description;
+
             List<string> identifiers = _blob.GetIdentifiers(oldPublication.PublicationImages);
             
             await _blob.DeleteFilesFromContainer(identifiers);
@@ -90,6 +95,7 @@ namespace PablitoJere.Controllers.V1
 
         // POST: api/Publications
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public async Task<ActionResult<Publication>> PostPublication(PublicationCreateDTO publicationCreateDTO)
         {
@@ -114,6 +120,7 @@ namespace PablitoJere.Controllers.V1
         }
 
         // DELETE: api/Publications/5
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePublication(int id)
         {
@@ -133,6 +140,7 @@ namespace PablitoJere.Controllers.V1
 
 
         // DELETE: api/Publications/5
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("all")]
         public async Task<IActionResult> DeleteAllPublications()
         {
