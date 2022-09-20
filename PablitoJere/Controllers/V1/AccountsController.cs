@@ -71,7 +71,7 @@ namespace PablitoJere.Controllers.V1
         public async Task<ActionResult<List<IdentityUser>>> Users()
         {
             var users = await userManager.GetUsersInRoleAsync("Admin");
-            return Ok(users);
+            return Ok(new { users = users, count = users.Count});
         }
 
         [HttpPost("register")]
@@ -111,9 +111,12 @@ namespace PablitoJere.Controllers.V1
                 user = await userManager.FindByNameAsync(usersCredential.UserName);
             }
 
-            userCredentials.Email = user.Email;
-            userCredentials.UserName = user.UserName;
-
+            if(user != null)
+            {
+                userCredentials.Email = user.Email;
+                userCredentials.UserName = user.UserName;
+            }
+            
             var result = await signInManager.PasswordSignInAsync(userCredentials.UserName, usersCredential.Password, isPersistent: false, lockoutOnFailure: false);
             
             if (result.Succeeded)
@@ -165,6 +168,7 @@ namespace PablitoJere.Controllers.V1
         }
 
         [HttpPost("SetAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> SetAdmin(EditAdminDTO editAdminDTO)
         {
             var usuario = await userManager.FindByEmailAsync(editAdminDTO.Email);
@@ -174,12 +178,25 @@ namespace PablitoJere.Controllers.V1
         }
 
         [HttpPost("RemoveAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> RemoveAdmin(EditAdminDTO editAdminDTO)
         {
             var usuario = await userManager.FindByEmailAsync(editAdminDTO.Email);
             await userManager.RemoveClaimAsync(usuario, new Claim("isAdmin", "1"));
 
             return NoContent();
+        }
+
+        [HttpDelete("RemoveUser/{userName}")]
+        public async Task<ActionResult> RemoveUser(string userName)
+        {
+            var user = await userManager.FindByNameAsync(userName);
+            if(user == null)
+            {
+                return BadRequest("Usuario no encontrado");
+            }
+            await userManager.DeleteAsync(user);
+            return Ok("Usuario eliminado exitosamente");
         }
     }
 }
