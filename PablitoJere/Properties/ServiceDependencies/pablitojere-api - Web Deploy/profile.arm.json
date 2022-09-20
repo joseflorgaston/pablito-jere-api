@@ -21,7 +21,7 @@
     },
     "resourceName": {
       "type": "string",
-      "defaultValue": "PablitoJere20220815011225",
+      "defaultValue": "pablitojere-api",
       "metadata": {
         "description": "Name of the main resource to be created by this template."
       }
