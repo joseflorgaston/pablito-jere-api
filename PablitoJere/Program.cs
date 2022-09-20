@@ -11,12 +11,12 @@ startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-var initDatabase = new InitDatabaseService();
-
 var logger = app.Services.GetService(typeof(ILogger<Startup>)) as ILogger<Startup>;
 
 startup.Configure(app, app.Environment, logger);
 
-await initDatabase.InitDatabase(app.Services);
+var initDatabase = new InitDatabaseService();
+
+// await initDatabase.InitDatabase(app.Services);
 
 app.Run();
