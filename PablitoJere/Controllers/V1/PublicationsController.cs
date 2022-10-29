@@ -103,6 +103,7 @@ namespace PablitoJere.Controllers.V1
             publication.Title = publicationCreateDTO.Title;
             publication.Description = publicationCreateDTO.Description;
             publication.PublicationImages = new List<PublicationImage>();
+            publication.Date = DateTime.Now;
 
             string[] imageUrls = await _blob.UploadImagesToBlobStorage(publicationCreateDTO.PublicationImages);
 

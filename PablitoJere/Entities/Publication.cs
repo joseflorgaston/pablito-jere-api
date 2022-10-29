@@ -1,5 +1,7 @@
 ﻿using PablitoJere.Validations;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PablitoJere.Entities
 {
@@ -15,7 +17,7 @@ namespace PablitoJere.Entities
         [StringLength(maximumLength: 1200, ErrorMessage = "Description field maximum Length is 1200 characters")]
         [Capitalized]
         public string Description { get; set; }
-
+        public DateTime Date { get; set; }
         public List<PublicationImage> PublicationImages { get; set; }
 
     }
